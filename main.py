@@ -4,16 +4,16 @@ board = [[" ", " ", " "],
          [" ", " ", " "],
          [" ", " ", " "],
          [" ", " ", " "]]
-
+emptySymbol = ""
 
 def userTurn():
-    ends = ["-", "-", "-"]
-    sides = np.transpose([["+", "|", "|", "|", "|", "+"]])
-    bordered = np.vstack([ends, board, ends])
-    bordered = np.hstack([sides, bordered, sides])
-
-    for line in bordered:
-        print(*line)
+    rowBorder = ["+", "-", "-", "-", "-", "-", "+"]
+    print(*rowBorder)
+    for row in board:
+        cpy = np.copy(row)
+        cpy[cpy == " "] = emptySymbol if emptySymbol else " "
+        print("| {:} |".format(" | ".join(cpy)))
+        print(" ".join(rowBorder))
 
 def aiTurn():
     print('not implemented yet')
