@@ -20,8 +20,8 @@ def getAndCheckMove(match):
             if char not in cols.keys() or num not in range(1, 5):
                 raise Exception("Move interpretation error: make sure to write a, b or c and numbers 1-4")
 
-            interpretedMove.append(char)
-            interpretedMove.append(num)
+            interpretedMove.append(cols[char])
+            interpretedMove.append(num - 1)
         except Exception as e:
             return None, e
 
@@ -32,4 +32,23 @@ def getAndCheckMove(match):
 
 
 def performMove(match, move):
-    return False, "what"
+
+    if len(move) == 2:
+        if match.current().onBoard >= 4:
+            return False, "A maximum of 4 pieces are allowed on the board at a time"
+
+        allowedRow = len(match.board) - 1 if match.current() == match.players[0] else 0
+        if not move[1] == allowedRow:
+            return False, "A new piece must be placed in row {0}".format(allowedRow + 1)
+
+        if match.board[move[1]][move[0]] == match.current().piece:
+            return False, "You already occupy this board slot"
+
+        match.board[move[1]][move[0]] = match.current().piece
+        match.current().onBoard += 1
+        return True, ""
+
+    else:
+        print("")
+
+    return False, "Unexpected error"

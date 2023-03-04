@@ -8,6 +8,7 @@ customizeMatch = False
 
 
 def printGame(match):
+    print()
     print(match.getPlayerInfoString(1))
 
     rowBorder = ["+", "-", "-", "-", "-", "-", "+"]
@@ -38,7 +39,7 @@ def gameLoop():
                 if success:
                     break
 
-            print(msg)
+            print("\t [INFO] " + msg)
 
         if match.current().score >= 5:
             printGame(match)
