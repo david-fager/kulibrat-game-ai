@@ -31,15 +31,13 @@ def gameLoop():
         match.turnNumber += 1
 
         while True:
-            printGame(match)
-
-            (move, msg) = logic.getAndCheckMove(match)
-            if move:
-                success, msg = logic.performMove(match, move)
-                if success:
+            try:
+                printGame(match)
+                move = logic.getAndCheckMove(match)
+                if logic.performMove(match, move):
                     break
-
-            print("\t [INFO] " + msg)
+            except Exception as e:
+                print("\t [RESULT] " + e.__str__())
 
         if match.current().score >= 5:
             printGame(match)
