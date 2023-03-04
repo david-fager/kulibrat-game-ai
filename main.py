@@ -1,8 +1,8 @@
 import numpy as np
 
 import classes
-import computer
 import customize
+import logic
 
 customizeMatch = False
 
@@ -23,24 +23,22 @@ def printGame(match):
     print()
 
 
-def performMove(match, move):
-    pass
-
-
 def gameLoop():
     match = customize.customMatch() if customizeMatch else classes.Match()
 
     while True:
         match.turnNumber += 1
 
-        printGame(match)
+        while True:
+            printGame(match)
 
-        if match.current().isAI:
-            move = computer.getAIMove(match)
-        else:
-            move = input("[{0}] Perform a move (e.g. a1-a2): ".format(match.current().name)).split("-")
+            (move, msg) = logic.getAndCheckMove(match)
+            if move:
+                success, msg = logic.performMove(match, move)
+                if success:
+                    break
 
-        performMove(match, move)
+            print(msg)
 
         if match.current().score >= 5:
             printGame(match)
