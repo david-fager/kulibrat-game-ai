@@ -6,19 +6,28 @@ class Player:
         self.name = name
         self.isAI = isAI
 
+    def toString(self):
+        name = self.name + (" (AI)" if self.isAI else "")
+        return " ".join([name, "-score:", str(self.score), "-onHand:", str(self.onHand)])
+
 
 class Match:
-    turnNumber = 1
+    turnNumber = 0
     board = [[" ", " ", " "],
              [" ", " ", " "],
              [" ", " ", " "],
              [" ", " ", " "]]
     players = []
 
-    def __init__(self, emptySymbol=" ", p1=Player("Player1"), p2=Player("Player2")):
+    def __init__(self, emptySymbol=" ", players=None):
         self.emptySymbol = emptySymbol
-        self.players.append(p2)
-        self.players.append(p1)
+        self.players = [Player("Player1"), Player("Player2")] if players is None else players
 
     def current(self):
-        return self.players[self.turnNumber % 2]
+        cpy = self.players.copy()
+        cpy.reverse()
+        return cpy[self.turnNumber % 2]
+
+    def getPlayerInfoString(self, index):
+        player = self.players[index]
+        return "[TURN] " + player.toString() if player == self.current() else player.toString()

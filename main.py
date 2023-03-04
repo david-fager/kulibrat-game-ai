@@ -1,31 +1,29 @@
 import numpy as np
 
 import classes
+import computer
 import customize
 
 customizeMatch = False
 
 
 def printGame(match):
-    print(match.players[0].name)
+    print(match.getPlayerInfoString(1))
 
     rowBorder = ["+", "-", "-", "-", "-", "-", "+"]
     print(*rowBorder)
-    for row in match.board:
+    for i, row in enumerate(match.board):
         cpy = np.copy(row)
         cpy[cpy == " "] = match.emptySymbol
-        print("| {:} |".format(" | ".join(cpy)))
+        print("| {:} |".format(" | ".join(cpy)) + f" {i + 1}")
         print(" ".join(rowBorder))
+    print("  {:}  ".format("   ".join(["a", "b", "c"])))
 
-    print(match.players[1].name)
+    print(match.getPlayerInfoString(0))
     print()
 
 
-def userTurn():
-    pass
-
-
-def aiTurn():
+def performMove(match, move):
     pass
 
 
@@ -33,14 +31,21 @@ def gameLoop():
     match = customize.customMatch() if customizeMatch else classes.Match()
 
     while True:
-        printGame(match)
-        aiTurn() if match.current().isAI else userTurn()
         match.turnNumber += 1
 
-        if match.turnNumber > 10:
-            break
+        printGame(match)
 
-    print('Game Over')
+        if match.current().isAI:
+            move = computer.getAIMove(match)
+        else:
+            move = input("[{0}] Perform a move (e.g. a1-a2): ".format(match.current().name)).split("-")
+
+        performMove(match, move)
+
+        if match.current().score >= 5:
+            printGame(match)
+            print("{0} has won the game".format(match.current().name))
+            break
 
 
 gameLoop()
