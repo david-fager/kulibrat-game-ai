@@ -15,7 +15,7 @@ def printGame(match):
     print(*rowBorder)
     for i, row in enumerate(match.board):
         cpy = np.copy(row)
-        cpy[cpy == " "] = match.emptySymbol
+        cpy[cpy == " "] = match.vacant
         print("| {:} |".format(" | ".join(cpy)) + f" {i + 1}")
         print(" ".join(rowBorder))
     print("  {:}  ".format("   ".join(["a", "b", "c"])))
@@ -39,7 +39,7 @@ def gameLoop():
             except Exception as e:
                 print("\t [RESULT] " + e.__str__())
 
-        if match.current().score >= 5:
+        if match.current().score >= match.playTo:
             printGame(match)
             print("{0} has won the game".format(match.current().name))
             break

@@ -20,9 +20,10 @@ class Match:
              [" ", " ", " "]]
     players = []
 
-    def __init__(self, emptySymbol=" ", players=None):
-        self.emptySymbol = emptySymbol
+    def __init__(self, vacant=" ", players=None, playTo=5):
+        self.vacant = vacant
         self.players = [Player("Player1", "O"), Player("Player2", "0")] if players is None else players
+        self.playTo = playTo
 
     def current(self):
         cpy = self.players.copy()
