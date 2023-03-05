@@ -1,6 +1,7 @@
 import numpy as np
 
 import classes
+import computer
 import customize
 import logic
 
@@ -33,9 +34,12 @@ def gameLoop():
         while True:
             try:
                 printGame(match)
-                move = logic.getAndCheckMove(match)
-                if logic.performMove(match, move):
+
+                move = computer.getAIMove(match) if match.current().isAI else logic.getUserMove(match)
+
+                if logic.checkMove(match, move, True):
                     break
+
             except Exception as e:
                 print("\t [RESULT] " + e.__str__())
 
