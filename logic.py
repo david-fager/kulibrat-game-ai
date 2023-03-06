@@ -7,13 +7,13 @@ def checkMove(match, move, performMove=False):
     fromX = move[0]
     fromY = move[1]
 
-    opponent = match.players[match.getPlayerOfCurrentTurn().playerNumber % 2]
-    startRow = len(match.board) - 1 if match.getPlayerOfCurrentTurn().playerNumber == 1 else 0
+    opponent = match.getCurrentOpponent()
+    startRow = len(match.board) - 1 if match.getCurrentPlayer() == match.players[0] else 0
     endRow = 3 - startRow
 
     # If a new piece is placed on the board
     if len(move) == 2:
-        if match.getPlayerOfCurrentTurn().onBoard >= 4:
+        if match.getCurrentPlayer().onBoard >= 4:
             raise Exception("You can have a maximum of 4 pieces on the board at a time")
 
         if not fromY == startRow:
@@ -24,15 +24,15 @@ def checkMove(match, move, performMove=False):
 
         if 0 <= fromX <= 2 and fromY == startRow:
             if performMove:
-                match.board[fromY][fromX] = match.getPlayerOfCurrentTurn().piece
-                match.getPlayerOfCurrentTurn().onBoard += 1
+                match.board[fromY][fromX] = match.getCurrentPlayer().piece
+                match.getCurrentPlayer().onBoard += 1
             return
 
     # If a piece is moved
     else:
         moveAllowed = False
 
-        if not match.board[fromY][fromX] == match.getPlayerOfCurrentTurn().piece:
+        if not match.board[fromY][fromX] == match.getCurrentPlayer().piece:
             raise Exception("You do not have a piece at {0}{1}".format(abc[fromX], fromY + 1))
 
         # if player wants to move a piece out of the board (score a point)
@@ -44,8 +44,8 @@ def checkMove(match, move, performMove=False):
             # if they are at the end row, then allow to move
             if fromY == endRow or moveAllowed:
                 if performMove:
-                    match.getPlayerOfCurrentTurn().score += 1
-                    match.getPlayerOfCurrentTurn().onBoard -= 1
+                    match.getCurrentPlayer().score += 1
+                    match.getCurrentPlayer().onBoard -= 1
                     match.board[fromY][fromX] = match.vacant
                 return
 
@@ -83,7 +83,7 @@ def checkMove(match, move, performMove=False):
         if moveAllowed:
             if performMove:
                 match.board[fromY][fromX] = match.vacant
-                match.board[toY][toX] = match.getPlayerOfCurrentTurn().piece
+                match.board[toY][toX] = match.getCurrentPlayer().piece
             return
 
     raise Exception("Unexpected move error")
