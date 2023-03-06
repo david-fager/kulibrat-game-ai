@@ -1,5 +1,51 @@
 import time
 
+# BFS (FIFO queue)
+frontier = []
+# set of visited states
+expandedNodes = {}
+
+def graphSearch(state):
+    # clear frontier and expandedNodes
+    frontier.clear()
+    expandedNodes.clear()
+
+    # add initial state to frontier
+    addToFrontier(match.board)
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("No solution found")
+
+        state = frontier.rear()
+        frontier.dequeue()
+        expandedNodes.add(state)
+
+        if(isGoal(state)):
+            return state
+
+        for action in getAvaliableMoves(state):
+            childState = getChildState(state, action)
+
+            if not childState in expandedNodes and not childState in frontier:
+                addToFrontier(childState)
+
+def getChildState(state, action):
+    # TODO
+    return None
+
+def isGoal(state):
+    # TODO 
+    return None
+
+def getAvaliableMoves(state):
+    state = match.board
+
+    # for i, row in enumerate(match.board):
+    #     print(row)
+    #     for j, col in enumerate(row):
+    #         print(col)
+    return None
 
 def getAIMove(match):
     try:
