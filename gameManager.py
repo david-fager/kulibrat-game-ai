@@ -15,9 +15,9 @@ def printGame(match):
     for i, row in enumerate(match.board):
         cpy = np.copy(row)
         cpy[cpy == " "] = match.vacant
-        print("| {:} |".format(" | ".join(cpy)) + f" {i + 1}")
-        print(" ".join(rowBorder))
-    print("  {:}  ".format("   ".join(["a", "b", "c"])))
+        print("| {} | {}".format(" | ".join(cpy), i + 1))
+        print(*rowBorder)
+    print("  {}  ".format("   ".join(["a", "b", "c"])))
 
     print(match.getPlayerInfoString(0))
     print()
@@ -31,10 +31,11 @@ def customMatch():
     matchLength = userInput.askLoop("The score to win the game (3-30): ", np.arange(3, 31).astype(str))
 
     for i in range(playerCount):
-        name = input("[Player {0}] name: ".format(i + 1))
+        number = i + 1
+        name = input("[Player {0}] name: ".format(number))
         piece = userInput.askLoop("[{0}] piece character (single char): ".format(name))
         yn = userInput.askLoop("[{0}] is computer? (y/n): ".format(name), ["y", "n"])
-        players.append(classes.Player(name, piece, yn == "y"))
+        players.append(classes.Player(name, piece, number, yn == "y"))
 
     return classes.Match(matchVacancy if matchVacancy else " ", players, int(matchLength))
 

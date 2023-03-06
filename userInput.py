@@ -12,6 +12,7 @@ def getUserMove(match):
     interpretedMove = []
     cols = {'a': 0, 'b': 1, 'c': 2}
     for m in move:
+        # move a piece out of the board (score a point)
         if len(interpretedMove) == 2 and m == "e":
             interpretedMove.append(m)
             continue
@@ -32,6 +33,7 @@ def getUserMove(match):
 
 
 def askLoop(prompt, condition=None):
+    # What is the purpose of condition?
     while True:
         response = input(prompt)
 

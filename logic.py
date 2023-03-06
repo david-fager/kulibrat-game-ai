@@ -1,16 +1,17 @@
 import numpy as np
 
 
-def checkMove(match, move, perform=False):
+def checkMove(match, move, performMove=False):
     abc = ['a', 'b', 'c']
 
     fromX = move[0]
     fromY = move[1]
 
-    opponent = match.players[1] if match.getPlayerOfCurrentTurn() == match.players[0] else match.players[0]
-    startRow = len(match.board) - 1 if match.getPlayerOfCurrentTurn() == match.players[0] else 0
+    opponent = match.players[match.getPlayerOfCurrentTurn().playerNumber % 2]
+    startRow = len(match.board) - 1 if match.getPlayerOfCurrentTurn().playerNumber == 1 else 0
     endRow = 3 - startRow
 
+    # If a new piece is placed on the board
     if len(move) == 2:
         if match.getPlayerOfCurrentTurn().onBoard >= 4:
             raise Exception("You can have a maximum of 4 pieces on the board at a time")
@@ -22,19 +23,19 @@ def checkMove(match, move, perform=False):
             raise Exception("This slot is already occupied")
 
         if 0 <= fromX <= 2 and fromY == startRow:
-            if perform:
+            if performMove:
                 match.board[fromY][fromX] = match.getPlayerOfCurrentTurn().piece
                 match.getPlayerOfCurrentTurn().onBoard += 1
+            return
 
-            return True
-
+    # If a piece is moved
     else:
         moveAllowed = False
 
         if not match.board[fromY][fromX] == match.getPlayerOfCurrentTurn().piece:
             raise Exception("You do not have a piece at {0}{1}".format(abc[fromX], fromY + 1))
 
-        # if player wants to move a piece to the end of the board (score a point)
+        # if player wants to move a piece out of the board (score a point)
         if move[2] == "e":
             # if the piece is not at the end row, then check that they can jump all rows
             if not fromY == endRow:
@@ -42,12 +43,11 @@ def checkMove(match, move, perform=False):
 
             # if they are at the end row, then allow to move
             if fromY == endRow or moveAllowed:
-                if perform:
+                if performMove:
                     match.getPlayerOfCurrentTurn().score += 1
                     match.getPlayerOfCurrentTurn().onBoard -= 1
                     match.board[fromY][fromX] = match.vacant
-
-                return True
+                return
 
             if not moveAllowed:
                 raise Exception("You cannot jump over vacant slots")
@@ -61,7 +61,7 @@ def checkMove(match, move, perform=False):
 
             # one vertical step means attack
             if rowsMoved == 1 and match.board[toY][toX] == opponent.piece:
-                if perform:
+                if performMove:
                     opponent.onBoard -= 1
 
                 moveAllowed = True
@@ -81,11 +81,10 @@ def checkMove(match, move, perform=False):
             moveAllowed = True
 
         if moveAllowed:
-            if perform:
+            if performMove:
                 match.board[fromY][fromX] = match.vacant
                 match.board[toY][toX] = match.getPlayerOfCurrentTurn().piece
-
-            return True
+            return
 
     raise Exception("Unexpected move error")
 

@@ -36,8 +36,7 @@ def gameLoop():
                 match.turnNumber -= 1
                 continue
 
-            if logic.checkMove(match, move, True):
-                continue
+            logic.checkMove(match, move, True)
 
         except Exception as e:
             print("\t[RESULT] " + e.__str__())
