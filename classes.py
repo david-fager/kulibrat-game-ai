@@ -9,15 +9,11 @@ class Player:
 
     def toString(self):
         name = self.name + (" (AI)" if self.isAI else "")
-        return " ".join([name, "-score:", str(self.score), "-onBoard:", str(self.onBoard)])
+        return " ".join([name, "-piece:", self.piece, "-score:", str(self.score), "-onBoard:", str(self.onBoard)])
 
 
 class Match:
     turnNumber = 0
-    # board = [[" ", " ", " "],
-    #          [" ", " ", " "],
-    #          [" ", " ", " "],
-    #          [" ", " ", " "]]
     players = []
 
     def __init__(self, vacant=" ", players=None, playTo=5):

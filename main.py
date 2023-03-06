@@ -1,41 +1,33 @@
-import numpy as np
-
 import classes
 import computer
-import customize
+import gameManager
 import logic
+import userInput
 
 customizeMatch = False
 
 
-def printGame(match):
-    print()
-    print(match.getPlayerInfoString(1))
-
-    rowBorder = ["+", "-", "-", "-", "-", "-", "+"]
-    print(*rowBorder)
-    for i, row in enumerate(match.board):
-        cpy = np.copy(row)
-        cpy[cpy == " "] = match.vacant
-        print("| {:} |".format(" | ".join(cpy)) + f" {i + 1}")
-        print(" ".join(rowBorder))
-    print("  {:}  ".format("   ".join(["a", "b", "c"])))
-
-    print(match.getPlayerInfoString(0))
-    print()
-
-
 def gameLoop():
-    match = customize.customMatch() if customizeMatch else classes.Match()
+    match = gameManager.customMatch() if customizeMatch else classes.Match()
 
     while True:
         match.turnNumber += 1
 
         while True:
             try:
-                printGame(match)
+                gameManager.printGame(match)
 
-                move = computer.getAIMove(match) if match.current().isAI else logic.getUserMove(match)
+                if not gameManager.canMoveAnything(match):
+                    break
+
+                move = computer.getAIMove(match) if match.current().isAI else userInput.getUserMove(match)
+
+                if move[0] == "override":
+                    skipTurn = gameManager.overrideMatch(match)
+                    if skipTurn:
+                        break
+
+                    continue
 
                 if logic.checkMove(match, move, True):
                     break
@@ -44,7 +36,7 @@ def gameLoop():
                 print("\t[RESULT] " + e.__str__())
 
         if match.current().score >= match.playTo:
-            printGame(match)
+            gameManager.printGame(match)
             print("{0} has won the game".format(match.current().name))
             break
 
