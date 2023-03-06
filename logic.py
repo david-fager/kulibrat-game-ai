@@ -92,7 +92,9 @@ def checkMove(match, move, perform=False):
 
             # one vertical step means attack
             if rowsMoved == 1 and match.board[toY][toX] == opponent.piece:
-                opponent.onBoard -= 1
+                if perform:
+                    opponent.onBoard -= 1
+
                 moveAllowed = True
 
             # multiple vertical steps means jump

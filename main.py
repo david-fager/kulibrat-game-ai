@@ -41,7 +41,7 @@ def gameLoop():
                     break
 
             except Exception as e:
-                print("\t [RESULT] " + e.__str__())
+                print("\t[RESULT] " + e.__str__())
 
         if match.current().score >= match.playTo:
             printGame(match)

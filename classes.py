@@ -14,16 +14,17 @@ class Player:
 
 class Match:
     turnNumber = 0
-    board = [[" ", " ", " "],
-             [" ", " ", " "],
-             [" ", " ", " "],
-             [" ", " ", " "]]
+    # board = [[" ", " ", " "],
+    #          [" ", " ", " "],
+    #          [" ", " ", " "],
+    #          [" ", " ", " "]]
     players = []
 
     def __init__(self, vacant=" ", players=None, playTo=5):
         self.vacant = vacant
-        self.players = [Player("Player1", "O"), Player("Player2", "0")] if players is None else players
+        self.players = [Player("Player1", "O"), Player("Player2", "0", True)] if players is None else players
         self.playTo = playTo
+        self.board = [[vacant] * 3 for i in range(4)]
 
     def current(self):
         cpy = self.players.copy()
