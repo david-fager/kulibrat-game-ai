@@ -80,6 +80,9 @@ def checkMove(match, move, perform=False):
 
                 return True
 
+            if not moveAllowed:
+                raise Exception("You cannot jump over vacant slots")
+
         toX = move[2]
         toY = move[3]
 
@@ -116,15 +119,19 @@ def checkMove(match, move, perform=False):
     raise Exception("Unexpected move error")
 
 
-def _checkJumpPath(match, opponent, fromX, fromY, toY, include):
+def _checkJumpPath(match, opponent, fromX, fromY, toY, land):
     moveAllowed = False
 
-    steps = np.abs(fromY - toY) if not include else np.abs(fromY - toY) + 1
-    for i in range(1, steps + 1):
-        step = fromY + i if fromY - toY < 0 else fromY - i
+    goingDown = fromY - toY < 0
+    direction = 1 if goingDown else -1
+    step = fromY
+    towards = toY + (-1 * direction) if land else toY
+
+    while step != towards:
+        step += direction
         moveAllowed = match.board[step][fromX] == opponent.piece
-        print(step)
+
         if not moveAllowed:
             break
 
-    return moveAllowed
+    return moveAllowed and (match.board[toY][fromX] == match.vacant if land else True)
