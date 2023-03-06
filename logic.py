@@ -32,7 +32,7 @@ def checkMove(match, move, perform=False):
         moveAllowed = False
 
         if not match.board[fromY][fromX] == match.current().piece:
-            raise Exception("You do not have a piece at {0}{1}".format(abc[fromY], fromX + 1))
+            raise Exception("You do not have a piece at {0}{1}".format(abc[fromX], fromY + 1))
 
         # if player wants to move a piece to the end of the board (score a point)
         if move[2] == "e":
