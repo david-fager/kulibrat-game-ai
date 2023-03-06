@@ -57,4 +57,6 @@ def overrideMatch(match):
     match.board = modified
 
     # TODO: make it so that certain board scenarios can be setup, to check code correctness
+    
+    # Return value is whether to skip the turn or not
     return False

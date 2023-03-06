@@ -12,33 +12,36 @@ def gameLoop():
 
     while True:
         match.turnNumber += 1
-
-        while True:
-            try:
-                gameManager.printGame(match)
-
-                if not gameManager.canMoveAnything(match):
-                    break
-
-                move = computer.getAIMove(match) if match.current().isAI else userInput.getUserMove(match)
-
-                if move[0] == "override":
-                    skipTurn = gameManager.overrideMatch(match)
-                    if skipTurn:
-                        break
-
-                    continue
-
-                if logic.checkMove(match, move, True):
-                    break
-
-            except Exception as e:
-                print("\t[RESULT] " + e.__str__())
-
-        if match.current().score >= match.playTo:
+        # End game if conditions are met
+        # TODO: End game if no player can make a move. 
+        if match.getPlayerOfCurrentTurn().score >= match.playTo:
             gameManager.printGame(match)
-            print("{0} has won the game".format(match.current().name))
+            print("{0} has won the game".format(match.getPlayerOfCurrentTurn().name))
             break
 
+        try:
+            gameManager.printGame(match)
+
+            # Check if player can make a valid move
+            if not gameManager.canMoveAnything(match):
+                continue
+
+            move = computer.getAIMove(match) if match.getPlayerOfCurrentTurn().isAI else userInput.getUserMove(match)
+
+            # Override match for custom position
+            if move[0] == "override":
+                skipTurn = gameManager.overrideMatch(match)
+                if skipTurn:
+                    continue
+                match.turnNumber -= 1
+                continue
+
+            if logic.checkMove(match, move, True):
+                continue
+
+        except Exception as e:
+            print("\t[RESULT] " + e.__str__())
+            # Retake turn
+            match.turnNumber -= 1
 
 gameLoop()

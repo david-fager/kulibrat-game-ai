@@ -18,15 +18,13 @@ class Match:
 
     def __init__(self, vacant=" ", players=None, playTo=5):
         self.vacant = vacant
-        self.players = [Player("Player1", "O"), Player("Player2", "0", True)] if players is None else players
+        self.players = [Player("Player1", "O"), Player("Player2", "1")] if players is None else players
         self.playTo = playTo
         self.board = [[vacant] * 3 for i in range(4)]
 
-    def current(self):
-        cpy = self.players.copy()
-        cpy.reverse()
-        return cpy[self.turnNumber % 2]
+    def getPlayerOfCurrentTurn(self):
+        return self.players[self.turnNumber % 2]
 
     def getPlayerInfoString(self, index):
         player = self.players[index]
-        return "[TURN] " + player.toString() if player == self.current() else player.toString()
+        return "[TURN] " + player.toString() if player == self.getPlayerOfCurrentTurn() else player.toString()

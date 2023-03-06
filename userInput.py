@@ -1,6 +1,6 @@
 def getUserMove(match):
     try:
-        move = input("[{0}] Perform a move (e.g. 'a1' or 'a1-a2'): ".format(match.current().name)).split("-")
+        move = input("[{0}] Perform a move (e.g. 'a1' or 'a1-a2'): ".format(match.getPlayerOfCurrentTurn().name)).split("-")
         if move[0] == "override":
             return ["override"]
     except KeyboardInterrupt:
