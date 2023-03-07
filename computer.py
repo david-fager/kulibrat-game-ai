@@ -4,15 +4,15 @@ import logic
 bestAction = None
 DEPTH = 7
 
-def miniMax(state, depth, alpha, beta, maximizingPlayer):
-    if depth == 0 or isGoal(state):
-        return evaluationOfState(state)
+def miniMax(match, depth, alpha, beta, maximizingPlayer):
+    if depth == 0 or isGoal(match):
+        return evaluationOfBoard(match.board)
 
     if maximizingPlayer:
         maxEval = float('-inf')
-        for action in getAvaliableMoves(state):
-            childState = getChildState(state, action)
-            eval = miniMax(childState, depth-1, alpha, beta, False)
+        for action in getAvaliableMoves(match):
+            child = getChildmatch(match, action)
+            eval = miniMax(child, depth-1, alpha, beta, False)
             if(eval > maxEval and depth == DEPTH):
                 bestAction = action
             maxEval = max(maxEval, eval)
@@ -22,9 +22,9 @@ def miniMax(state, depth, alpha, beta, maximizingPlayer):
         return maxEval
     else:
         minEval = float('inf')
-        for action in getAvaliableMoves(state):
-            childState = getChildState(state, action)
-            eval = miniMax(childState, depth-1, alpha, beta, True)
+        for action in getAvaliableMoves(match):
+            child = getChildmatch(match, action)
+            eval = miniMax(child, depth-1, alpha, beta, True)
             if(eval < minEval and depth == DEPTH):
                 bestAction = action
             minEval = min(minEval, eval)
@@ -33,20 +33,19 @@ def miniMax(state, depth, alpha, beta, maximizingPlayer):
                 break
         return minEval
 
-def evaluationOfState(state):
+def evaluationOfBoard(board):
     # TODO
     return None
 
-def getChildState(state, action):
-    # TODO
-    return None
+def getChildmatch(match, move):
+    return logic.checkMove(match, move, True)
 
-def isGoal(state):
-    if(getPlayerOfCurrentTurn(state).score >= state.playTo):
+def isGoal(match):
+    if(getPlayerOfCurrentTurn(match).score >= match.playTo):
         return True
     return False
 
-def getAvaliableMoves(state):
+def getAvaliableMoves(match):
     legalMoves = []
     rowMovement = -1 if match.getCurrentPlayer() == match.players[0] else 1
     startRow = len(match.board)-1 if rowMovement == -1 else 0
@@ -56,30 +55,30 @@ def getAvaliableMoves(state):
 
     # Place piece
     for i in range(3):
-        if(logic.checkMove(state, [i, startRow])):
+        if(logic.checkMove(match, [i, startRow])):
             legalMoves.append([i, startRow])
     
     # Move piece
     for i, row in enumerate(match.board):
         for j, peice in enumerate(row):
-            if(piece == state.getPlayerOfCurrentTurn().piece):
+            if(piece == match.getPlayerOfCurrentTurn().piece):
                 try:
                     # Attack move
-                    if(logic.checkMove(state, [j, i, j, i+rowMovement])):
+                    if(logic.checkMove(match, [j, i, j, i+rowMovement])):
                         legalMoves.append([j, i, j, i+rowMovement])
                 except:
                     pass
 
                 try:
                     # Move diagonally to the right
-                    if(logic.checkMove(state, [j, i, j+1, i+rowMovement])):
+                    if(logic.checkMove(match, [j, i, j+1, i+rowMovement])):
                         legalMoves.append([j, i, j+1, i+rowMovement])
                 except:
                     pass
 
                 try:
                     # Move diagonally to the left
-                    if(logic.checkMove(state, [j, i, j-1, i+rowMovement])):
+                    if(logic.checkMove(match, [j, i, j-1, i+rowMovement])):
                         legalMoves.append([j, i, j-1, i+rowMovement])
                 except:
                     pass
@@ -87,14 +86,14 @@ def getAvaliableMoves(state):
                 # Jump move
                 for k in range(2, 3):
                     try:
-                        if(logic.checkMove(state, [j, i, j+k, i+rowMovement*k])):
+                        if(logic.checkMove(match, [j, i, j+k, i+rowMovement*k])):
                             legalMoves.append([j, i, j+k, i+rowMovement*k])
                     except:
                         pass
                 
                 # Score a point
                 try:
-                    if(logic.checkMove(state, [j, i, "e"])):
+                    if(logic.checkMove(match, [j, i, "e"])):
                         legalMoves.append([j, i, "e"])
                 except:
                     pass
