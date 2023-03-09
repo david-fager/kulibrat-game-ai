@@ -1,16 +1,29 @@
 import numpy as np
+import gameManager
 
 
 def checkMove(match, move, performMove=False):
     abc = ['a', 'b', 'c']
 
+    # print(move)
+
     fromX = move[0]
     fromY = move[1]
 
     opponent = match.getCurrentOpponent()
-    startRow = len(match.board) - 1 if match.getCurrentPlayer() == match.players[0] else 0
+    rowMovement = -1 if match.getCurrentPlayer() == match.players[0] else 1
+    startRow = len(match.board)-1 if rowMovement == -1 else 0
     endRow = 3 - startRow
 
+    # print(startRow)
+    # print(rowMovement)
+    # print(len(match.board))
+    # print(move)
+    for m in move:
+        if(m < 0):
+            raise Exception("You cannot move to a negative position")
+
+    
     # If a new piece is placed on the board
     if len(move) == 2:
         if match.getCurrentPlayer().onBoard >= 4:
@@ -26,13 +39,20 @@ def checkMove(match, move, performMove=False):
             if performMove:
                 match.board[fromY][fromX] = match.getCurrentPlayer().piece
                 match.getCurrentPlayer().onBoard += 1
-            return
+                return match
+            return True
 
     # If a piece is moved
     else:
         moveAllowed = False
 
         if not match.board[fromY][fromX] == match.getCurrentPlayer().piece:
+            gameManager.printGame(match)
+            # print(match.board)
+            print(move)
+            print(fromX)
+            print(fromY)
+            print(match.getCurrentPlayer().name)
             raise Exception("You do not have a piece at {0}{1}".format(abc[fromX], fromY + 1))
 
         # if player wants to move a piece out of the board (score a point)
@@ -47,7 +67,8 @@ def checkMove(match, move, performMove=False):
                     match.getCurrentPlayer().score += 1
                     match.getCurrentPlayer().onBoard -= 1
                     match.board[fromY][fromX] = match.vacant
-                return
+                    return match
+                return True
 
             if not moveAllowed:
                 raise Exception("You cannot jump over vacant slots")
@@ -84,7 +105,8 @@ def checkMove(match, move, performMove=False):
             if performMove:
                 match.board[fromY][fromX] = match.vacant
                 match.board[toY][toX] = match.getCurrentPlayer().piece
-            return
+                return match
+            return True
 
     raise Exception("Unexpected move error")
 

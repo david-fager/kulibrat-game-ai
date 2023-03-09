@@ -18,7 +18,7 @@ class Match:
 
     def __init__(self, vacant=" ", players=None, playTo=5):
         self.vacant = vacant
-        self.players = [Player("Player1", "O"), Player("Player2", "X")] if players is None else players
+        self.players = [Player("Player1", "O"), Player("Player2", "X", True)] if players is None else players
         self.playTo = playTo
         self.board = [[vacant] * 3 for i in range(4)]
 

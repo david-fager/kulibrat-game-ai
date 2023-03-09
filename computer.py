@@ -1,20 +1,22 @@
-import time
 import logic
+import copy
 
-bestAction = None
-DEPTH = 7
+bestMove = None
+DEPTH = 1
 
 def miniMax(match, depth, alpha, beta, maximizingPlayer):
     if depth == 0 or isGoal(match):
-        return evaluationOfBoard(match.board)
+        return evaluationOfGame(match)
 
     if maximizingPlayer:
         maxEval = float('-inf')
-        for action in getAvaliableMoves(match):
-            child = getChildmatch(match, action)
-            eval = miniMax(child, depth-1, alpha, beta, False)
+        print(getAvaliableMoves(match))
+        for move in getAvaliableMoves(match):
+            performAction(match, move)
+            eval = miniMax(match, depth-1, alpha, beta, False)
             if(eval > maxEval and depth == DEPTH):
-                bestAction = action
+                global bestMove
+                bestMove = move
             maxEval = max(maxEval, eval)
             alpha = max(alpha, eval)
             if beta <= alpha:
@@ -22,26 +24,66 @@ def miniMax(match, depth, alpha, beta, maximizingPlayer):
         return maxEval
     else:
         minEval = float('inf')
-        for action in getAvaliableMoves(match):
-            child = getChildmatch(match, action)
-            eval = miniMax(child, depth-1, alpha, beta, True)
+        print(getAvaliableMoves(match))
+        for move in getAvaliableMoves(match):
+            performAction(match, move)
+            eval = miniMax(match, depth-1, alpha, beta, True)
             if(eval < minEval and depth == DEPTH):
-                bestAction = action
+                bestMove = move
             minEval = min(minEval, eval)
             beta = min(beta, eval)
             if beta <= alpha:
                 break
         return minEval
 
-def evaluationOfBoard(board):
-    # TODO
-    return None
+def evaluationOfGame(match):
+    eval = 0
+    playerIndex = 0 if match.getCurrentPlayer() == match.players[0] else 1
 
-def getChildmatch(match, move):
-    return logic.checkMove(match, move, True)
+    # Check if the game is over
+    if(isGoal(match)):
+        if(playerIndex == 0):
+            return float('inf')
+        else:
+            return float('-inf')
+    
+    # Check if the game is a draw
+    # TODO
+    # return 0
+
+    # Evaluation of board
+    for i, row in enumerate(match.board):
+        advanceGain = len(match.board) - i if playerIndex == 0 else i + 1
+        for j, piece in enumerate(row):
+
+            # Evaluation of position
+            if(piece == match.players[playerIndex].piece):
+                eval += 10 + advanceGain
+            else:
+                eval -= 10 + advanceGain
+
+            # Evaluation of number of pieces
+            if(piece == match.players[playerIndex].piece):
+                eval += 10
+            else:
+                eval -= 10
+    
+    # Evaluation of score
+    if(playerIndex == 0):
+        eval += match.players[playerIndex].score * 50
+        eval -= match.players[1 - playerIndex].score * 50
+    else:
+        eval -= match.players[playerIndex].score * 50
+        eval += match.players[1 - playerIndex].score * 50
+
+    return eval
+
+def performAction(match, move):
+    logic.checkMove(match, move, True)
+    # match.turnNumber += 1
 
 def isGoal(match):
-    if(getPlayerOfCurrentTurn(match).score >= match.playTo):
+    if(match.getCurrentPlayer().score >= match.playTo):
         return True
     return False
 
@@ -55,13 +97,16 @@ def getAvaliableMoves(match):
 
     # Place piece
     for i in range(3):
-        if(logic.checkMove(match, [i, startRow])):
-            legalMoves.append([i, startRow])
+        try:
+            if(logic.checkMove(match, [i, startRow])):
+                legalMoves.append([i, startRow])
+        except:
+            pass
     
     # Move piece
     for i, row in enumerate(match.board):
-        for j, peice in enumerate(row):
-            if(piece == match.getPlayerOfCurrentTurn().piece):
+        for j, piece in enumerate(row):
+            if(piece == match.getCurrentPlayer().piece):
                 try:
                     # Attack move
                     if(logic.checkMove(match, [j, i, j, i+rowMovement])):
@@ -84,7 +129,7 @@ def getAvaliableMoves(match):
                     pass
 
                 # Jump move
-                for k in range(2, 3):
+                for k in range(2, 4):
                     try:
                         if(logic.checkMove(match, [j, i, j+k, i+rowMovement*k])):
                             legalMoves.append([j, i, j+k, i+rowMovement*k])
@@ -102,8 +147,13 @@ def getAvaliableMoves(match):
 def getAIMove(match):
     try:
         print("\t[AI] thinking ...")
-        miniMax(match, DEPTH, float('-inf'), float('inf'), True) # Not sure who is the maximizing player
-        return bestAction
+        cpyOfMatch = copy.deepcopy(match)
+
+        # player at index 0 will be the maximizing player
+        maxOrMinPlayer = True if match.getCurrentPlayer() == match.players[0] else False
+        miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), maxOrMinPlayer)
+        print(bestMove)
+        return bestMove
     except KeyboardInterrupt:
         exit()
 
