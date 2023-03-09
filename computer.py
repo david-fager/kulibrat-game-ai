@@ -2,18 +2,21 @@ import logic
 import copy
 
 bestMove = None
-DEPTH = 1
+DEPTH = 7
+noPositions = 0
 
 def miniMax(match, depth, alpha, beta, maximizingPlayer):
+    global noPositions
+    noPositions += 1
     if depth == 0 or isGoal(match):
         return evaluationOfGame(match)
 
     if maximizingPlayer:
         maxEval = float('-inf')
-        print(getAvaliableMoves(match))
         for move in getAvaliableMoves(match):
-            performAction(match, move)
-            eval = miniMax(match, depth-1, alpha, beta, False)
+            cpyMatch = copy.deepcopy(match)
+            performAction(cpyMatch, move)
+            eval = miniMax(cpyMatch, depth-1, alpha, beta, False)
             if(eval > maxEval and depth == DEPTH):
                 global bestMove
                 bestMove = move
@@ -24,10 +27,10 @@ def miniMax(match, depth, alpha, beta, maximizingPlayer):
         return maxEval
     else:
         minEval = float('inf')
-        print(getAvaliableMoves(match))
         for move in getAvaliableMoves(match):
-            performAction(match, move)
-            eval = miniMax(match, depth-1, alpha, beta, True)
+            cpyMatch = copy.deepcopy(match)
+            performAction(cpyMatch, move)
+            eval = miniMax(cpyMatch, depth-1, alpha, beta, True)
             if(eval < minEval and depth == DEPTH):
                 bestMove = move
             minEval = min(minEval, eval)
@@ -43,13 +46,12 @@ def evaluationOfGame(match):
     # Check if the game is over
     if(isGoal(match)):
         if(playerIndex == 0):
-            return float('inf')
+            return 999999
         else:
-            return float('-inf')
+            return -999999
     
-    # Check if the game is a draw
+    # Check if the game is deadlocked
     # TODO
-    # return 0
 
     # Evaluation of board
     for i, row in enumerate(match.board):
@@ -80,7 +82,7 @@ def evaluationOfGame(match):
 
 def performAction(match, move):
     logic.checkMove(match, move, True)
-    # match.turnNumber += 1
+    match.turnNumber += 1
 
 def isGoal(match):
     if(match.getCurrentPlayer().score >= match.playTo):
@@ -131,8 +133,8 @@ def getAvaliableMoves(match):
                 # Jump move
                 for k in range(2, 4):
                     try:
-                        if(logic.checkMove(match, [j, i, j+k, i+rowMovement*k])):
-                            legalMoves.append([j, i, j+k, i+rowMovement*k])
+                        if(logic.checkMove(match, [j, i, j, i+rowMovement*k])):
+                            legalMoves.append([j, i, j, i+rowMovement*k])
                     except:
                         pass
                 
@@ -142,6 +144,7 @@ def getAvaliableMoves(match):
                         legalMoves.append([j, i, "e"])
                 except:
                     pass
+    
     return legalMoves
 
 def getAIMove(match):
@@ -152,18 +155,10 @@ def getAIMove(match):
         # player at index 0 will be the maximizing player
         maxOrMinPlayer = True if match.getCurrentPlayer() == match.players[0] else False
         miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), maxOrMinPlayer)
-        print(bestMove)
+        
+        global noPositions
+        print("Calculated " + str(noPositions) + " positions")
+        noPositions = 0
         return bestMove
     except KeyboardInterrupt:
         exit()
-
-    # steps:
-    # 1. find possible move
-    # 2. check it with logic.logic.checkMove(match, move)
-    # 3. return move as array, either:
-    # [newPieceX, newPieceY] places a new piece
-    # [fromX, fromY, toX, toY] moves a piece from -> to
-    # [fromX, fromY, "e"] moves a piece from somewhere to the end (scoring a point)
-    # e.g. return [1, 0, "e"] will move a piece from upper middle to the end (if logic.logic.checkMove() approves of it)
-
-    raise Exception("Not implemented yet")

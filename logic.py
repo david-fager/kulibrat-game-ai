@@ -11,18 +11,14 @@ def checkMove(match, move, performMove=False):
     fromY = move[1]
 
     opponent = match.getCurrentOpponent()
-    rowMovement = -1 if match.getCurrentPlayer() == match.players[0] else 1
-    startRow = len(match.board)-1 if rowMovement == -1 else 0
+    startRow = len(match.board) - 1 if match.getCurrentPlayer() == match.players[0] else 0
     endRow = 3 - startRow
 
-    # print(startRow)
-    # print(rowMovement)
-    # print(len(match.board))
-    # print(move)
+    # Check for invalid moves
     for m in move:
-        if(m < 0):
-            raise Exception("You cannot move to a negative position")
-
+        if(not isinstance(m, str)):
+            if(m > len(match.board)-1 or m < 0):
+                raise Exception("You cannot move to a position outside the board")
     
     # If a new piece is placed on the board
     if len(move) == 2:
@@ -47,12 +43,6 @@ def checkMove(match, move, performMove=False):
         moveAllowed = False
 
         if not match.board[fromY][fromX] == match.getCurrentPlayer().piece:
-            gameManager.printGame(match)
-            # print(match.board)
-            print(move)
-            print(fromX)
-            print(fromY)
-            print(match.getCurrentPlayer().name)
             raise Exception("You do not have a piece at {0}{1}".format(abc[fromX], fromY + 1))
 
         # if player wants to move a piece out of the board (score a point)
