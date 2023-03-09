@@ -7,18 +7,24 @@ noPositions = 0
 
 def miniMax(match, depth, alpha, beta, maximizingPlayer):
     global noPositions
+    global bestMove
     noPositions += 1
     if depth == 0 or isGoal(match):
         return evaluationOfGame(match)
 
     if maximizingPlayer:
         maxEval = float('-inf')
-        for move in getAvaliableMoves(match):
+        avaliableMoves = getAvaliableMoves(match)
+
+        # Skip turn if no available moves
+        if(avaliableMoves == []):
+            return miniMax(match, depth-1, alpha, beta, False)
+        
+        for move in avaliableMoves:
             cpyMatch = copy.deepcopy(match)
             performAction(cpyMatch, move)
             eval = miniMax(cpyMatch, depth-1, alpha, beta, False)
             if(eval > maxEval and depth == DEPTH):
-                global bestMove
                 bestMove = move
             maxEval = max(maxEval, eval)
             alpha = max(alpha, eval)
@@ -27,7 +33,13 @@ def miniMax(match, depth, alpha, beta, maximizingPlayer):
         return maxEval
     else:
         minEval = float('inf')
-        for move in getAvaliableMoves(match):
+        avaliableMoves = getAvaliableMoves(match)
+
+        # Skip turn if no available moves
+        if(avaliableMoves == []):
+            return miniMax(match, depth-1, alpha, beta, True)
+        
+        for move in avaliableMoves:
             cpyMatch = copy.deepcopy(match)
             performAction(cpyMatch, move)
             eval = miniMax(cpyMatch, depth-1, alpha, beta, True)
