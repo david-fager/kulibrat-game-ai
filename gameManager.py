@@ -4,13 +4,17 @@ import classes
 import userInput
 
 
-def printGame(match, testingAI):
+def printGame(match, testingAI=False):
     if testingAI:
         print("{0} ({1}/{2})".format(match.getCurrentPlayer().name, match.getCurrentPlayer().score, match.playTo))
         return
 
     print("\n" + match.getPlayerInfoString(1))
+    printBoard(match)
+    print(match.getPlayerInfoString(0) + "\n")
 
+
+def printBoard(match):
     rowBorder = ["+", "-", "-", "-", "-", "-", "+"]
     print(*rowBorder)
     for i, row in enumerate(match.board):
@@ -18,7 +22,14 @@ def printGame(match, testingAI):
         print(*rowBorder)
     print("  {}  ".format("   ".join(["a", "b", "c"])))
 
-    print(match.getPlayerInfoString(0) + "\n")
+
+def printEndGame(match):
+    print()
+    print("Final board:")
+    printBoard(match)
+    print()
+    print("WINNER: {0}".format(match.getCurrentPlayer().toString()))
+    print("VERSUS: {0}".format(match.getCurrentOpponent().toString()))
 
 
 def customMatch(testingAI):
@@ -43,7 +54,6 @@ def customMatch(testingAI):
 
 
 def overrideMatch(match):
-    # match.current().score = 30
     modified = [[match.vacant] * 3 for i in range(4)]
     modified[3][1] = match.players[0].piece
     modified[3][0] = modified[3][2] = match.players[1].piece

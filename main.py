@@ -16,9 +16,11 @@ def gameLoop():
             gameManager.printGame(match, testingAI)
 
             # Check if current player can move, if not check opponent, neither then break
-            if(computer.getAvaliableMoves(match) == []):
+            if not computer.getAvailableMoves(match):
+                print("{0} has no available moves - skipping turn".format(match.getCurrentPlayer().name))
                 match.turnNumber += 1
-                if(computer.getAvaliableMoves(match) == []):
+                if not computer.getAvailableMoves(match):
+                    print("{0} also has no available moves".format(match.getCurrentPlayer().name))
                     print("{0} has lost the game, due to inducing a deadlock".format(match.getCurrentPlayer().name))
                     break
                 continue
@@ -36,14 +38,15 @@ def gameLoop():
 
             # End game if conditions are met
             if match.getCurrentPlayer().score >= match.playTo:
-                gameManager.printGame(match)
-                print("{0} has won the game".format(match.getCurrentPlayer().name))
+                gameManager.printEndGame(match)
                 break
 
             match.turnNumber += 1
 
         except Exception as e:
             print("\t[RESULT] " + e.__str__())
+
+    return match
 
 
 gameLoop()
