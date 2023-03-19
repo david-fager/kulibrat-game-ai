@@ -5,14 +5,15 @@ import logic
 import userInput
 
 customizeMatch = False
+testingAI = False
 
 
 def gameLoop():
-    match = gameManager.customMatch() if customizeMatch else classes.Match()
+    match = gameManager.customMatch(testingAI) if customizeMatch or testingAI else classes.Match()
 
     while True:
         try:
-            gameManager.printGame(match)
+            gameManager.printGame(match, testingAI)
 
             # Check if current player can move, if not check opponent, neither then break
             if(computer.getAvaliableMoves(match) == []):

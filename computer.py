@@ -1,9 +1,12 @@
+import time
+
 import logic
 import copy
 
 bestMove = None
 DEPTH = 7
 noPositions = 0
+
 
 def miniMax(match, depth, alpha, beta, maximizingPlayer):
     global noPositions
@@ -51,6 +54,7 @@ def miniMax(match, depth, alpha, beta, maximizingPlayer):
                 break
         return minEval
 
+
 def evaluationOfGame(match):
     eval = 0
     playerIndex = 0 if match.getCurrentPlayer() == match.players[0] else 1
@@ -92,14 +96,17 @@ def evaluationOfGame(match):
 
     return eval
 
+
 def performAction(match, move):
     logic.checkMove(match, move, True)
     match.turnNumber += 1
+
 
 def isGoal(match):
     if(match.getCurrentPlayer().score >= match.playTo):
         return True
     return False
+
 
 def getAvaliableMoves(match):
     legalMoves = []
@@ -159,9 +166,11 @@ def getAvaliableMoves(match):
     
     return legalMoves
 
+
 def getAIMove(match):
     try:
-        print("\t[AI] thinking ...")
+        print("\tThinking ...")
+        time.sleep(.5)  # gives human & program time to see & print the game
         cpyOfMatch = copy.deepcopy(match)
 
         # player at index 0 will be the maximizing player
@@ -169,8 +178,10 @@ def getAIMove(match):
         miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), maxOrMinPlayer)
         
         global noPositions
-        print("Calculated " + str(noPositions) + " positions")
+        print("\tCalculated " + str(noPositions) + " positions")
         noPositions = 0
+
         return bestMove
+
     except KeyboardInterrupt:
         exit()

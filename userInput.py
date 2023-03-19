@@ -1,6 +1,6 @@
 def getUserMove(match):
     try:
-        move = input("[{0}] Perform a move (e.g. 'a1' or 'a1-a2'): ".format(match.getCurrentPlayer().name)).split("-")
+        move = input("[{0}] Perform a move (e.g. 'a4' or 'c3-c1'): ".format(match.getCurrentPlayer().name)).split("-")
         if move[0] == "override":
             return ["override"]
     except KeyboardInterrupt:
@@ -33,9 +33,10 @@ def getUserMove(match):
 
 
 def askLoop(prompt, condition=None):
-    # Keep asking till the response matches criteria
+    # keep asking till the response matches criteria
     while True:
         response = input(prompt)
 
-        if len(response) == 1 and (response in condition if condition is not None else True):
+        # either the response match the condition, or it must be 1 char in length
+        if (response in condition if condition is not None else False) or len(response) == 1:
             return response

@@ -1,11 +1,8 @@
 import numpy as np
-import gameManager
 
 
 def checkMove(match, move, performMove=False):
     abc = ['a', 'b', 'c']
-
-    # print(move)
 
     fromX = move[0]
     fromY = move[1]
@@ -16,8 +13,8 @@ def checkMove(match, move, performMove=False):
 
     # Check for invalid moves
     for m in move:
-        if(not isinstance(m, str)):
-            if(m > len(match.board)-1 or m < 0):
+        if not isinstance(m, str):
+            if m > len(match.board)-1 or m < 0:
                 raise Exception("You cannot move to a position outside the board")
     
     # If a new piece is placed on the board
@@ -104,11 +101,13 @@ def checkMove(match, move, performMove=False):
 def _checkJumpPath(match, opponent, fromX, fromY, toY, land):
     moveAllowed = False
 
+    # figuring out if the current player is going 'up' or 'down' the board
     goingDown = fromY - toY < 0
     direction = 1 if goingDown else -1
     step = fromY
     towards = toY + (-1 * direction) if land else toY
 
+    # check that each "step" (board slot) from the player's piece to where they want to go, has opponent pieces
     while step != towards:
         step += direction
         moveAllowed = match.board[step][fromX] == opponent.piece
@@ -116,4 +115,5 @@ def _checkJumpPath(match, opponent, fromX, fromY, toY, land):
         if not moveAllowed:
             break
 
+    # true if only jumping over opponent pieces and if not scoring point then the landing slot should also be vacant
     return moveAllowed and (match.board[toY][fromX] == match.vacant if land else True)
