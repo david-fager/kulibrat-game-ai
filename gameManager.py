@@ -5,7 +5,7 @@ import userInput
 
 
 def printGame(match, testingAI=False):
-    if testingAI:
+    if testingAI and False:  # set this True to skip printing the entire board
         print("{0} ({1}/{2})".format(match.getCurrentPlayer().name, match.getCurrentPlayer().score, match.playTo))
         return
 
@@ -32,14 +32,17 @@ def printEndGame(match):
     print("VERSUS: {0}".format(match.getCurrentOpponent().toString()))
 
 
-def customMatch(testingAI):
+def customMatch(testingAI, depthsTest):
     playerCount = 2
     players = []
 
     if testingAI:
         players.append(classes.Player("AI 1", "X", True))
         players.append(classes.Player("AI 2", "O", True))
-        return classes.Match(" ", players, 20)
+        if depthsTest:
+            players[0].aiDepth = depthsTest[0]
+            players[1].aiDepth = depthsTest[1]
+        return classes.Match(" ", players, 30)
 
     matchVacancy = userInput.askLoop("How should a vacant board slot look? (single char): ")
     matchLength = userInput.askLoop("The score to win the game (3-30): ", np.arange(3, 31).astype(str))

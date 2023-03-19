@@ -1,6 +1,7 @@
 class Player:
     score = 0
     onBoard = 0
+    aiDepth = 7
 
     def __init__(self, name, piece, isAI=False):
         self.name = name

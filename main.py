@@ -8,8 +8,8 @@ customizeMatch = False
 testingAI = False
 
 
-def gameLoop():
-    match = gameManager.customMatch(testingAI) if customizeMatch or testingAI else classes.Match()
+def gameLoop(depthsTest=None):
+    match = gameManager.customMatch(testingAI, depthsTest) if customizeMatch or testingAI else classes.Match()
 
     while True:
         try:
@@ -24,7 +24,7 @@ def gameLoop():
                     print("{0} has lost the game, due to inducing a deadlock".format(match.getCurrentPlayer().name))
                     break
                 continue
-            
+
             move = computer.getAIMove(match) if match.getCurrentPlayer().isAI else userInput.getUserMove(match)
 
             # Override match for custom position
@@ -49,4 +49,41 @@ def gameLoop():
     return match
 
 
-gameLoop()
+def testLoop():
+    data = {}
+    depths = [3, 4, 5, 6, 7, 8, 9, 10]
+    for d in depths:
+        data[d] = ""
+
+    biggestScoreLeap = 0
+    prevBestDepth = depths[0]
+
+    for i, depth in enumerate(depths):
+        if depth == depths[0]:
+            continue
+
+        print("\nSTARTING DEPTH TEST MATCH BETWEEN {0} and {1}".format(prevBestDepth, depth))
+        players = gameLoop([prevBestDepth, depth]).players
+
+        if players[0].score > players[1].score:
+            leap = players[0].score - players[1].score
+            data[prevBestDepth] += ("{0}, ".format(leap))
+
+            if leap > biggestScoreLeap:
+                biggestScoreLeap = leap
+                prevBestDepth = depth
+        else:
+            leap = players[1].score - players[0].score
+            data[depth] += ("{0}, ".format(leap))
+
+            if leap > biggestScoreLeap:
+                biggestScoreLeap = leap
+                prevBestDepth = depth
+
+    print("BEST DEPTH: {0} WITH BIGGEST LEAP OF: {1}".format(prevBestDepth, biggestScoreLeap))
+    print("Complete test results - higher leaps are better:")
+    for k, v in data.items():
+        print("Depth {0} leaps: {1}".format(str(k), v))
+
+
+gameLoop() if not (testingAI and False) else testLoop()  # set True to run the depth test loop

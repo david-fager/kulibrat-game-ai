@@ -1,3 +1,4 @@
+import random
 import time
 
 import logic
@@ -28,7 +29,7 @@ def miniMax(match, depth, alpha, beta, maximize):
 
     # Skip turn if no available moves
     if not availableMoves:
-        return miniMax(match, depth-1, alpha, beta, not maximize)
+        return miniMax(match, depth - 1, alpha, beta, not maximize)
 
     for move in availableMoves:
         cpyMatch = copy.deepcopy(match)
@@ -38,7 +39,7 @@ def miniMax(match, depth, alpha, beta, maximize):
         cpyMatch.turnNumber += 1
 
         # get evaluation of this move's subtree
-        eval = miniMax(cpyMatch, depth-1, alpha, beta, not maximize)
+        eval = miniMax(cpyMatch, depth - 1, alpha, beta, not maximize)
 
         # when maximizing the highest possible eval result for all subtrees is returned
         if maximize:
@@ -100,7 +101,7 @@ def evaluationOfGame(match):
 def getAvailableMoves(match):
     legalMoves = []
     rowMovement = -1 if match.getCurrentPlayer() == match.players[0] else 1
-    startRow = len(match.board)-1 if rowMovement == -1 else 0
+    startRow = len(match.board) - 1 if rowMovement == -1 else 0
 
     # [0, 0] is top left corner
     # [col, row]
@@ -108,7 +109,7 @@ def getAvailableMoves(match):
     # Place piece
     for i in range(3):
         try:
-            if(logic.checkMove(match, [i, startRow])):
+            if (logic.checkMove(match, [i, startRow])):
                 legalMoves.append([i, startRow])
         except:
             pass
@@ -116,39 +117,39 @@ def getAvailableMoves(match):
     # Move piece
     for i, row in enumerate(match.board):
         for j, piece in enumerate(row):
-            if(piece == match.getCurrentPlayer().piece):
+            if (piece == match.getCurrentPlayer().piece):
                 try:
                     # Attack move
-                    if(logic.checkMove(match, [j, i, j, i+rowMovement])):
-                        legalMoves.append([j, i, j, i+rowMovement])
+                    if (logic.checkMove(match, [j, i, j, i + rowMovement])):
+                        legalMoves.append([j, i, j, i + rowMovement])
                 except:
                     pass
 
                 try:
                     # Move diagonally to the right
-                    if(logic.checkMove(match, [j, i, j+1, i+rowMovement])):
-                        legalMoves.append([j, i, j+1, i+rowMovement])
+                    if (logic.checkMove(match, [j, i, j + 1, i + rowMovement])):
+                        legalMoves.append([j, i, j + 1, i + rowMovement])
                 except:
                     pass
 
                 try:
                     # Move diagonally to the left
-                    if(logic.checkMove(match, [j, i, j-1, i+rowMovement])):
-                        legalMoves.append([j, i, j-1, i+rowMovement])
+                    if (logic.checkMove(match, [j, i, j - 1, i + rowMovement])):
+                        legalMoves.append([j, i, j - 1, i + rowMovement])
                 except:
                     pass
 
                 # Jump move
                 for k in range(2, 4):
                     try:
-                        if(logic.checkMove(match, [j, i, j, i+rowMovement*k])):
-                            legalMoves.append([j, i, j, i+rowMovement*k])
+                        if (logic.checkMove(match, [j, i, j, i + rowMovement * k])):
+                            legalMoves.append([j, i, j, i + rowMovement * k])
                     except:
                         pass
 
                 # Score a point
                 try:
-                    if(logic.checkMove(match, [j, i, "e"])):
+                    if (logic.checkMove(match, [j, i, "e"])):
                         legalMoves.append([j, i, "e"])
                 except:
                     pass
@@ -157,12 +158,17 @@ def getAvailableMoves(match):
 
 
 def getAIMove(match):
-    global actualCurrentIdx, actualOpponentIdx
+    global DEPTH, actualCurrentIdx, actualOpponentIdx
     actualCurrentIdx = 0 if match.getCurrentPlayer() == match.players[0] else 1
     actualOpponentIdx = 1 - actualCurrentIdx
 
+    depthRandomizer = 0
+    if random.randint(0, 99) < 5:
+        depthRandomizer = 1
+    DEPTH = match.getCurrentPlayer().aiDepth + depthRandomizer
+
     try:
-        print("\tThinking ...")
+        print("\tThinking (depth {0}) ...".format(DEPTH))
         time.sleep(.5)  # gives human & program time to see & print the game
         cpyOfMatch = copy.deepcopy(match)
 
@@ -170,7 +176,7 @@ def getAIMove(match):
         miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), True)
 
         global noPositions
-        print("\tCalculated {0} positions)".format(str(noPositions)))
+        print("\tCalculated {0} positions".format(str(noPositions)))
         noPositions = 0
 
         return bestMove
