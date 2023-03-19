@@ -3,112 +3,101 @@ import time
 import logic
 import copy
 
+actualCurrentIdx = None
+actualOpponentIdx = None
+
 bestMove = None
 DEPTH = 7
 noPositions = 0
 
 
-def miniMax(match, depth, alpha, beta, maximizingPlayer):
-    global noPositions
-    global bestMove
+def isGoal(match):
+    return match.getCurrentPlayer().score >= match.playTo
+
+
+def miniMax(match, depth, alpha, beta, maximize):
+    global bestMove, noPositions
     noPositions += 1
+
+    # if depth limit of search tree reached or the node has reached the winning score, then evaluate board
     if depth == 0 or isGoal(match):
         return evaluationOfGame(match)
 
-    if maximizingPlayer:
-        maxEval = float('-inf')
-        avaliableMoves = getAvaliableMoves(match)
+    endEval = float('-inf') if maximize else float('inf')
+    availableMoves = getAvailableMoves(match)
 
-        # Skip turn if no available moves
-        if(avaliableMoves == []):
-            return miniMax(match, depth-1, alpha, beta, False)
-        
-        for move in avaliableMoves:
-            cpyMatch = copy.deepcopy(match)
-            performAction(cpyMatch, move)
-            eval = miniMax(cpyMatch, depth-1, alpha, beta, False)
-            if(eval > maxEval and depth == DEPTH):
+    # Skip turn if no available moves
+    if not availableMoves:
+        return miniMax(match, depth-1, alpha, beta, not maximize)
+
+    for move in availableMoves:
+        cpyMatch = copy.deepcopy(match)
+
+        # actually perform the move in this "pretend" match
+        logic.checkMove(cpyMatch, move, True)
+        cpyMatch.turnNumber += 1
+
+        # get evaluation of this move's subtree
+        eval = miniMax(cpyMatch, depth-1, alpha, beta, not maximize)
+
+        # when maximizing the highest possible eval result for all subtrees is returned
+        if maximize:
+            if eval > endEval and depth == DEPTH:
                 bestMove = move
-            maxEval = max(maxEval, eval)
+            endEval = max(endEval, eval)
             alpha = max(alpha, eval)
-            if beta <= alpha:
-                break
-        return maxEval
-    else:
-        minEval = float('inf')
-        avaliableMoves = getAvaliableMoves(match)
 
-        # Skip turn if no available moves
-        if(avaliableMoves == []):
-            return miniMax(match, depth-1, alpha, beta, True)
-        
-        for move in avaliableMoves:
-            cpyMatch = copy.deepcopy(match)
-            performAction(cpyMatch, move)
-            eval = miniMax(cpyMatch, depth-1, alpha, beta, True)
-            if(eval < minEval and depth == DEPTH):
+        # when minimizing the lowest possible eval result for all subtrees is returned
+        else:
+            if eval < endEval and depth == DEPTH:
                 bestMove = move
-            minEval = min(minEval, eval)
+            endEval = min(endEval, eval)
             beta = min(beta, eval)
-            if beta <= alpha:
-                break
-        return minEval
+
+        if beta <= alpha:
+            break
+
+    return endEval
 
 
 def evaluationOfGame(match):
-    eval = 0
-    playerIndex = 0 if match.getCurrentPlayer() == match.players[0] else 1
+    global actualCurrentIdx, actualOpponentIdx
+    isPretenderActual = match.getCurrentPlayer() == match.players[actualCurrentIdx]
+    isPretenderAtTop = match.getCurrentPlayer() == match.players[1]
+    opponentEnd = len(match.board) if isPretenderAtTop else 0
 
-    # Check if the game is over
-    if(isGoal(match)):
-        if(playerIndex == 0):
-            return 999999
-        else:
-            return -999999
-    
-    # Check if the game is deadlocked
-    # TODO
+    eval = 0
+
+    # If current node means someone wins, then for AI return great evaluation, for opponent return bad evaluation
+    if isGoal(match):
+        return 999999 if isPretenderActual else -999999
+
+    # TODO: check if the game is deadlocked
 
     # Evaluation of board
     for i, row in enumerate(match.board):
-        advanceGain = len(match.board) - i if playerIndex == 0 else i + 1
+        # the greater the distance from opponents end, the greater the consideration for the looked at move
+        advanceGain = len(match.board) - i if isPretenderAtTop else i + 1
+        scoreGain = 10 if i == opponentEnd else 0
+
         for j, piece in enumerate(row):
 
-            # Evaluation of position
-            if(piece == match.players[playerIndex].piece):
-                eval += 10 + advanceGain
-            else:
-                eval -= 10 + advanceGain
+            # promote for every piece on the board, and promote the ones farther away more (with the adv. gain)
+            if piece == match.players[actualCurrentIdx].piece:
+                eval += 10 + advanceGain + scoreGain
 
-            # Evaluation of number of pieces
-            if(piece == match.players[playerIndex].piece):
-                eval += 10
-            else:
-                eval -= 10
-    
-    # Evaluation of score
-    if(playerIndex == 0):
-        eval += match.players[playerIndex].score * 50
-        eval -= match.players[1 - playerIndex].score * 50
-    else:
-        eval -= match.players[playerIndex].score * 50
-        eval += match.players[1 - playerIndex].score * 50
+            # demote eval for every opponent piece on board
+            if piece == match.players[actualOpponentIdx].piece:
+                eval -= 10 + advanceGain + scoreGain
+
+    # promote moves leading to this board's score - demote the higher the opponent's score is
+    eval += match.players[actualCurrentIdx].score * 50
+    eval -= match.players[actualOpponentIdx].score * 50
 
     return eval
 
 
-def performAction(match, move):
-    logic.checkMove(match, move, True)
-    match.turnNumber += 1
-
-
-def isGoal(match):
-    if(match.getCurrentPlayer().score >= match.playTo):
-        return True
-    return False
-
-
-def getAvaliableMoves(match):
+def getAvailableMoves(match):
     legalMoves = []
     rowMovement = -1 if match.getCurrentPlayer() == match.players[0] else 1
     startRow = len(match.board)-1 if rowMovement == -1 else 0
@@ -123,7 +112,7 @@ def getAvaliableMoves(match):
                 legalMoves.append([i, startRow])
         except:
             pass
-    
+
     # Move piece
     for i, row in enumerate(match.board):
         for j, piece in enumerate(row):
@@ -156,29 +145,32 @@ def getAvaliableMoves(match):
                             legalMoves.append([j, i, j, i+rowMovement*k])
                     except:
                         pass
-                
+
                 # Score a point
                 try:
                     if(logic.checkMove(match, [j, i, "e"])):
                         legalMoves.append([j, i, "e"])
                 except:
                     pass
-    
+
     return legalMoves
 
 
 def getAIMove(match):
+    global actualCurrentIdx, actualOpponentIdx
+    actualCurrentIdx = 0 if match.getCurrentPlayer() == match.players[0] else 1
+    actualOpponentIdx = 1 - actualCurrentIdx
+
     try:
         print("\tThinking ...")
         time.sleep(.5)  # gives human & program time to see & print the game
         cpyOfMatch = copy.deepcopy(match)
 
         # player at index 0 will be the maximizing player
-        maxOrMinPlayer = True if match.getCurrentPlayer() == match.players[0] else False
-        miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), maxOrMinPlayer)
-        
+        miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), True)
+
         global noPositions
-        print("\tCalculated " + str(noPositions) + " positions")
+        print("\tCalculated {0} positions)".format(str(noPositions)))
         noPositions = 0
 
         return bestMove
