@@ -18,8 +18,8 @@ opponent pieces, if facing them in a straight line.
 ## How To Play
 Starting the program is simply running the "main.py" file.
 This can be achieved in any python editor, or by using a terminal
-with command: \
-`$ python main.py` (__The script does make use of the numpy library, so this should be available to your intepreter.__)
+with command: `$ python main.py`\
+__The script does make use of the numpy library, so this should be available to your intepreter:__ `$ pip install numpy`
 \
 \
 The default match is a human playing against the AI.
