@@ -17,6 +17,11 @@ opponent pieces, if facing them in a straight line.
 
 ## How To Play
 Starting the program is simply running the "main.py" file.
+This can be achieved in any python editor, or by using a terminal
+with command: \
+`$ python main.py` (__The script does make use of the numpy library, so this should be available to your intepreter.__)
+\
+\
 The default match is a human playing against the AI.
 However, setting the config variable "CUSTOM_MATCH" in the file "main.py" will allow:
 * human vs. human
