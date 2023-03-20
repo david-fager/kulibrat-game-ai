@@ -168,7 +168,7 @@ def getAIMove(match):
     DEPTH = match.getCurrentPlayer().aiDepth + depthRandomizer
 
     try:
-        print("\tThinking (depth {0}) ...".format(DEPTH))
+        print("\tAI thinking ...")
         time.sleep(.5)  # gives human & program time to see & print the game
         cpyOfMatch = copy.deepcopy(match)
 
@@ -176,7 +176,7 @@ def getAIMove(match):
         miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), True)
 
         global noPositions
-        print("\tCalculated {0} positions".format(str(noPositions)))
+        print("\tDepth {0} - calculated {1} positions".format(DEPTH, str(noPositions)))
         noPositions = 0
 
         return bestMove

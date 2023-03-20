@@ -6,6 +6,7 @@ import userInput
 
 customizeMatch = False
 testingAI = False
+depthTest = False
 
 
 def gameLoop(depthsTest=None):
@@ -17,11 +18,11 @@ def gameLoop(depthsTest=None):
 
             # Check if current player can move, if not check opponent, neither then break
             if not computer.getAvailableMoves(match):
-                print("{0} has no available moves - skipping turn".format(match.getCurrentPlayer().name))
+                print("\t{0} has no available moves - skipping turn".format(match.getCurrentPlayer().name))
                 match.turnNumber += 1
                 if not computer.getAvailableMoves(match):
-                    print("{0} also has no available moves".format(match.getCurrentPlayer().name))
-                    print("{0} has lost the game, due to inducing a deadlock".format(match.getCurrentPlayer().name))
+                    print("\t{0} also has no available moves".format(match.getCurrentPlayer().name))
+                    print("\t{0} has lost the game, due to inducing a deadlock".format(match.getCurrentPlayer().name))
                     break
                 continue
 
@@ -50,40 +51,65 @@ def gameLoop(depthsTest=None):
 
 
 def testLoop():
-    data = {}
+    global testingAI
+    testingAI = depthTest
     depths = [3, 4, 5, 6, 7, 8, 9, 10]
-    for d in depths:
-        data[d] = ""
+    results = dict.fromkeys(depths, "")
 
-    biggestScoreLeap = 0
-    prevBestDepth = depths[0]
+    for i, testDepth in enumerate(depths):
+        for compDepth in depths[i + 1:]:
+            print("MATCHING DEPTH {0} AGAINST {1}".format(testDepth, compDepth))
+            players = gameLoop([testDepth, compDepth]).players
 
-    for i, depth in enumerate(depths):
-        if depth == depths[0]:
-            continue
+            score1 = players[0].score
+            score2 = players[1].score
 
-        print("\nSTARTING DEPTH TEST MATCH BETWEEN {0} and {1}".format(prevBestDepth, depth))
-        players = gameLoop([prevBestDepth, depth]).players
+            if score1 > score2:
+                results[testDepth] += "{0} (vs. {1}), ".format((score1 - score2), compDepth)
+            elif score2 > score1:
+                results[compDepth] += "{0} (vs. {1}), ".format((score2 - score1), testDepth)
+            else:
+                results[testDepth] += "tied (vs. {0}), ".format(compDepth)
+                results[compDepth] += "tied (vs. {0}), ".format(testDepth)
 
-        if players[0].score > players[1].score:
-            leap = players[0].score - players[1].score
-            data[prevBestDepth] += ("{0}, ".format(leap))
+    print("COMPLETE TEST RESULTS:")
+    for k, v in results.items():
+        print("DEPTH {0}: ".format(str(k), v))
 
-            if leap > biggestScoreLeap:
-                biggestScoreLeap = leap
-                prevBestDepth = depth
-        else:
-            leap = players[1].score - players[0].score
-            data[depth] += ("{0}, ".format(leap))
+    # data = {}
+    # depths = [3, 4, 5, 6, 7, 8, 9, 10]
+    # for d in depths:
+    #     data[d] = ""
+    #
+    # biggestScoreLeap = 0
+    # prevBestDepth = depths[0]
+    #
+    # for i, depth in enumerate(depths):
+    #     if depth == depths[0]:
+    #         continue
+    #
+    #     print("\nSTARTING DEPTH TEST MATCH BETWEEN {0} and {1}".format(prevBestDepth, depth))
+    #     players = gameLoop([prevBestDepth, depth]).players
+    #
+    #     if players[0].score > players[1].score:
+    #         leap = players[0].score - players[1].score
+    #         data[prevBestDepth] += ("{0}, ".format(leap))
+    #
+    #         if leap > biggestScoreLeap:
+    #             biggestScoreLeap = leap
+    #             prevBestDepth = depth
+    #     else:
+    #         leap = players[1].score - players[0].score
+    #         data[depth] += ("{0}, ".format(leap))
+    #
+    #         if leap > biggestScoreLeap:
+    #             biggestScoreLeap = leap
+    #             prevBestDepth = depth
+    #
+    # print("BEST DEPTH: {0} WITH BIGGEST LEAP OF: {1}".format(prevBestDepth, biggestScoreLeap))
+    # print("Complete test results - higher leaps are better:")
+    # for k, v in data.items():
+    #     print("Depth {0} leaps: {1}".format(str(k), v))
 
-            if leap > biggestScoreLeap:
-                biggestScoreLeap = leap
-                prevBestDepth = depth
 
-    print("BEST DEPTH: {0} WITH BIGGEST LEAP OF: {1}".format(prevBestDepth, biggestScoreLeap))
-    print("Complete test results - higher leaps are better:")
-    for k, v in data.items():
-        print("Depth {0} leaps: {1}".format(str(k), v))
-
-
-gameLoop() if not (testingAI and False) else testLoop()  # set True to run the depth test loop
+gameLoop() if not depthTest else testLoop()
