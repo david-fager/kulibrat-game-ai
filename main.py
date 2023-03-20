@@ -8,7 +8,7 @@ import userInput
 # defining the configuration
 config.CUSTOM_MATCH = False
 config.AI_TESTING = False
-config.DEPTH_TESTING = True
+config.DEPTH_TESTING = False
 config.SUPPRESS_PRINT = False
 
 
