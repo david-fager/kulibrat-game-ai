@@ -1,28 +1,33 @@
 import classes
 import computer
-import gameManager
+import config
+import gameManager as gman
 import logic
 import userInput
 
-customizeMatch = False
-testingAI = False
-depthTest = False
+# defining the configuration
+config.CUSTOM_MATCH = False
+config.AI_TESTING = False
+config.DEPTH_TESTING = True
+config.SUPPRESS_PRINT = False
 
 
-def gameLoop(depthsTest=None):
-    match = gameManager.customMatch(testingAI, depthsTest) if customizeMatch or testingAI else classes.Match()
+def gameLoop(preMatch=None):
+    preMatch = preMatch if config.AI_TESTING or config.DEPTH_TESTING else classes.Match()
+    match = gman.createMatch(None if config.CUSTOM_MATCH else preMatch)
 
     while True:
         try:
-            gameManager.printGame(match, testingAI)
+            gman.printGame(match)
 
             # Check if current player can move, if not check opponent, neither then break
             if not computer.getAvailableMoves(match):
-                print("\t{0} has no available moves - skipping turn".format(match.getCurrentPlayer().name))
+                gman.printMsg("\t{0} has no available moves - skipping turn".format(match.getCurrentPlayer().name))
                 match.turnNumber += 1
                 if not computer.getAvailableMoves(match):
-                    print("\t{0} also has no available moves".format(match.getCurrentPlayer().name))
-                    print("\t{0} has lost the game, due to inducing a deadlock".format(match.getCurrentPlayer().name))
+                    name = match.getCurrentPlayer().name
+                    gman.printMsg("\t{0} also has no available moves".format(name))
+                    gman.printMsg("\t{0} has lost the game, due to inducing a deadlock".format(name))
                     break
                 continue
 
@@ -30,7 +35,7 @@ def gameLoop(depthsTest=None):
 
             # Override match for custom position
             if move[0] == "override":
-                skipTurn = gameManager.overrideMatch(match)
+                skipTurn = gman.overrideMatch(match)
                 if skipTurn:
                     match.turnNumber += 1
                 continue
@@ -39,27 +44,31 @@ def gameLoop(depthsTest=None):
 
             # End game if conditions are met
             if match.getCurrentPlayer().score >= match.playTo:
-                gameManager.printEndGame(match)
+                gman.printEndGame(match)
                 break
 
             match.turnNumber += 1
 
         except Exception as e:
-            print("\t[RESULT] " + e.__str__())
+            gman.printMsg("\t[RESULT] " + e.__str__(), True)
 
     return match
 
 
 def testLoop():
-    global testingAI
-    testingAI = depthTest
+    config.SUPPRESS_PRINT = config.DEPTH_TESTING
+    config.AI_SLEEP_TIME = 0
+
     depths = [3, 4, 5, 6, 7, 8, 9, 10]
     results = dict.fromkeys(depths, "")
 
     for i, testDepth in enumerate(depths):
         for compDepth in depths[i + 1:]:
             print("MATCHING DEPTH {0} AGAINST {1}".format(testDepth, compDepth))
-            players = gameLoop([testDepth, compDepth]).players
+
+            players = [classes.Player("AI 1", "X", True, testDepth),
+                       classes.Player("AI 2", "O", True, compDepth)]
+            players = gameLoop(classes.Match(" ", players, 30)).players
 
             score1 = players[0].score
             score2 = players[1].score
@@ -72,44 +81,9 @@ def testLoop():
                 results[testDepth] += "tied (vs. {0}), ".format(compDepth)
                 results[compDepth] += "tied (vs. {0}), ".format(testDepth)
 
-    print("COMPLETE TEST RESULTS:")
-    for k, v in results.items():
-        print("DEPTH {0}: ".format(str(k), v))
-
-    # data = {}
-    # depths = [3, 4, 5, 6, 7, 8, 9, 10]
-    # for d in depths:
-    #     data[d] = ""
-    #
-    # biggestScoreLeap = 0
-    # prevBestDepth = depths[0]
-    #
-    # for i, depth in enumerate(depths):
-    #     if depth == depths[0]:
-    #         continue
-    #
-    #     print("\nSTARTING DEPTH TEST MATCH BETWEEN {0} and {1}".format(prevBestDepth, depth))
-    #     players = gameLoop([prevBestDepth, depth]).players
-    #
-    #     if players[0].score > players[1].score:
-    #         leap = players[0].score - players[1].score
-    #         data[prevBestDepth] += ("{0}, ".format(leap))
-    #
-    #         if leap > biggestScoreLeap:
-    #             biggestScoreLeap = leap
-    #             prevBestDepth = depth
-    #     else:
-    #         leap = players[1].score - players[0].score
-    #         data[depth] += ("{0}, ".format(leap))
-    #
-    #         if leap > biggestScoreLeap:
-    #             biggestScoreLeap = leap
-    #             prevBestDepth = depth
-    #
-    # print("BEST DEPTH: {0} WITH BIGGEST LEAP OF: {1}".format(prevBestDepth, biggestScoreLeap))
-    # print("Complete test results - higher leaps are better:")
-    # for k, v in data.items():
-    #     print("Depth {0} leaps: {1}".format(str(k), v))
+            print("\tTEST RESULTS:")
+            for k, v in results.items():
+                print("\tDEPTH {0} LEAPS: {1}".format(str(k).zfill(2), v))
 
 
-gameLoop() if not depthTest else testLoop()
+gameLoop() if not config.DEPTH_TESTING else testLoop()

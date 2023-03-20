@@ -1,53 +1,60 @@
 import numpy as np
 
 import classes
+import config
 import userInput
 
 
-def printGame(match, testingAI=False):
-    if testingAI and False:  # set this True to skip printing the entire board
-        print("{0} ({1}/{2})".format(match.getCurrentPlayer().name, match.getCurrentPlayer().score, match.playTo))
+def printGame(match):
+    if config.AI_TESTING and config.SUPPRESS_PRINT:
+        player = match.getCurrentPlayer()
+        printMsg("{0} ({1}/{2})".format(player.name, player.score, match.playTo), True)
         return
 
-    print("\n" + match.getPlayerInfoString(1))
+    printMsg("\nMATCH TO {0} POINTS".format(match.playTo))
+    printMsg(match.getPlayerInfoString(1))
     printBoard(match)
-    print(match.getPlayerInfoString(0) + "\n")
+    printMsg(match.getPlayerInfoString(0) + "\n")
 
 
 def printBoard(match):
     rowBorder = ["+", "-", "-", "-", "-", "-", "+"]
-    print(*rowBorder)
+    msg = " ".join(rowBorder) + "\n"
     for i, row in enumerate(match.board):
-        print("| {} | {}".format(" | ".join(row), i + 1))
-        print(*rowBorder)
-    print("  {}  ".format("   ".join(["a", "b", "c"])))
+        msg += "| {} | {}\n".format(" | ".join(row), i + 1)
+        msg += " ".join(rowBorder) + "\n"
+    msg += "  {}  ".format("   ".join(["a", "b", "c"]))
+    printMsg(msg)
 
 
 def printEndGame(match):
-    print()
-    print("Final board:")
+    printMsg("\nFinal board:")
     printBoard(match)
-    print()
-    print("WINNER: {0}".format(match.getCurrentPlayer().toString()))
-    print("VERSUS: {0}".format(match.getCurrentOpponent().toString()))
+    msg = "\n"
+    msg += "WINNER: {0}".format(match.getCurrentPlayer().toString())
+    msg += "VERSUS: {0}".format(match.getCurrentOpponent().toString())
+    printMsg(msg)
 
 
-def customMatch(testingAI, depthsTest):
-    playerCount = 2
-    players = []
+def printMsg(msg, neverSuppress=False):
+    if neverSuppress or not config.SUPPRESS_PRINT:
+        print(msg)
 
-    if testingAI:
-        players.append(classes.Player("AI 1", "X", True))
-        players.append(classes.Player("AI 2", "O", True))
-        if depthsTest:
-            players[0].aiDepth = depthsTest[0]
-            players[1].aiDepth = depthsTest[1]
-        return classes.Match(" ", players, 30)
+
+def createMatch(preMatch):
+    if preMatch:
+        return preMatch
+
+    if config.AI_TESTING:
+        players = [classes.Player("AI 1", "X", True),
+                   classes.Player("AI 2", "O", True)]
+        return classes.Match(" ", players, 10)
 
     matchVacancy = userInput.askLoop("How should a vacant board slot look? (single char): ")
     matchLength = userInput.askLoop("The score to win the game (3-30): ", np.arange(3, 31).astype(str))
 
-    for i in range(playerCount):
+    players = []
+    for i in range(2):
         name = input("[Player {0}] name: ".format(i + 1))
         piece = userInput.askLoop("[{0}] piece character (single char): ".format(name))
         yn = userInput.askLoop("[{0}] is computer? (y/n): ".format(name), ["y", "n"])

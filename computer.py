@@ -1,6 +1,8 @@
 import random
 import time
 
+import config
+import gameManager as gman
 import logic
 import copy
 
@@ -162,21 +164,20 @@ def getAIMove(match):
     actualCurrentIdx = 0 if match.getCurrentPlayer() == match.players[0] else 1
     actualOpponentIdx = 1 - actualCurrentIdx
 
-    depthRandomizer = 0
-    if random.randint(0, 99) < 5:
-        depthRandomizer = 1
-    DEPTH = match.getCurrentPlayer().aiDepth + depthRandomizer
+    DEPTH = match.getCurrentPlayer().aiDepth
+    DEPTH = DEPTH + 1 if random.randint(0, 99) < config.AI_RAND_DEPTH_CHANCE else DEPTH
 
     try:
-        print("\tAI thinking ...")
-        time.sleep(.5)  # gives human & program time to see & print the game
+        gman.printMsg("\tAI thinking ...")
+        time.sleep(config.AI_SLEEP_TIME)  # gives human & program time to see & print the game
         cpyOfMatch = copy.deepcopy(match)
 
         # player at index 0 will be the maximizing player
         miniMax(cpyOfMatch, DEPTH, float('-inf'), float('inf'), True)
 
         global noPositions
-        print("\tDepth {0} - calculated {1} positions".format(DEPTH, str(noPositions)))
+        forcePrint = config.AI_TESTING and config.SUPPRESS_PRINT
+        gman.printMsg("\tDepth {0} - calculated {1} positions".format(DEPTH, str(noPositions)), forcePrint)
         noPositions = 0
 
         return bestMove

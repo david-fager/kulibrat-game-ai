@@ -18,7 +18,7 @@ opponent pieces, if facing them in a straight line.
 ## How To Play
 Starting the program is simply running the "main.py" file.
 The default match is a human playing against the AI.
-However, setting the variable "customizeMatch" in the file "main.py" will allow:
+However, setting the config variable "CUSTOM_MATCH" in the file "main.py" will allow:
 * human vs. human
 * human vs. AI
 * AI vs. AI
@@ -33,3 +33,18 @@ meaning a diagonal move upwards and to the right. The available moves are theref
 (attacks opponent piece at "a3" with player piece at "a4")
 * __\[Column+Row]-e__, e.g. b2-e
 (jumps piece at "b2" over opponent's pieces and to board end, scoring a point)
+
+## Testing
+The config variables being set in the beginning of the "main.py"
+file, allows for some customization of the matches being played.
+* Changing the __"CUSTOM_MATCH"__ config variable allows to choose
+board looks, player names, winning score and who is an AI.
+* Changing the __"AI_TESTING"__ variable plays a game with two AIs
+against each other, with simple, preset game settings.
+* Changing the __"DEPTH_TESTING"__ variable runs multiple games
+with little-to-no printing, but keeps track of which AI depth
+level wins the most and by how much.
+* Changing the __"SUPPRESS_PRINT"__ variable limits the amount
+of information being printed about the match. This is useful
+for increasing the speed of the program, or de-cluttering
+the console output.
